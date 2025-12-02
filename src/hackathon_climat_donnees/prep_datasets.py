@@ -32,8 +32,9 @@ def prepare_dataset():
 
     # export multi-format
     gdf.to_file("sample.gpkg", driver="GPKG")
-    gdf.to_file("sample.shp", driver="GPKG")
+    gdf.to_file("sample.shp")
     gdf.drop("geometry", axis=1).to_csv("sample.csv", sep=";")
+    df.to_file("sample.geojson", driver="GeoJSON")
 
     return gdf
 
