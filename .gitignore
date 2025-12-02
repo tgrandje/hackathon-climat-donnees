@@ -1,2 +1,4 @@
 
 /.spyproject
+.pyc
+src/hackathon_climat_donnees/cache.sqlite
