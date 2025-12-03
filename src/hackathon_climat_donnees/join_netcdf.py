@@ -19,7 +19,7 @@ def parse_netcdf_csv(path="tas_max_RP_GEV_points_all_period_ALL_COLUMNS.csv"):
 
 
 def join(gdf, meteo):
-    gdf = gpd.sjoin_nearest(gdf, meteo, how="left")
+    gdf = gpd.sjoin_nearest(gdf, meteo, how="left").drop("index_right", axis=1)
     return gdf
 
 

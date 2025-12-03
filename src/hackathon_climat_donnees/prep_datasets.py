@@ -352,8 +352,26 @@ def profile_irep() -> gpd.GeoDataFrame:
     return etabs
 
 
-def merge_datasets(gdf, irep_profiles) -> gpd.GeoDataFrame:
-    # TODO : docstring
+def merge_datasets(
+    gdf: gpd.GeoDataFrame, irep_profiles: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    """
+    Assemblage des données ICPE & des profils ICPE tirés du dataset IREP
+
+    Parameters
+    ----------
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame des ICPE
+    irep_profiles : gpd.GeoDataFrame
+        GeoDataFrame des profils IREP
+
+    Returns
+    -------
+    gdf : GeoDataFrame des ICPE
+        GeoDataFrame consolidé
+
+    """
+
     gdf = gdf.rename({"geometry": "geometry_icpe"}, axis=1)
     gdf = gdf.merge(
         irep_profiles, left_on="code_aiot", right_on="identifiant", how="left"
@@ -490,7 +508,22 @@ def hazards(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return data
 
 
-def prep_dataset_icpe(save: bool = True):
+def prep_dataset_icpe(save: bool = True) -> gpd.GeoDataFrame:
+    """
+    Génération d'un dataset d'environ 260 ICPE contextualisé en matières
+    d'émissions dans l'environnement et de risques naturels.
+
+    Parameters
+    ----------
+    save : bool, optional
+        Si True, le dataset est exporté ç divers formats. True par défaut.
+
+    Returns
+    -------
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame des ICPE constextualisé
+
+    """
     gdf = prepare_dataset()
     irep_profiles = profile_irep()
     gdf = merge_datasets(gdf, irep_profiles)
