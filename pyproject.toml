@@ -1,7 +1,8 @@
 [project]
 name = "hackathon-climat-donnees"
 version = "0.1.0"
-description = ""
+license = "GPL-3.0-or-later"
+description = "projet eight'xtrêmes du hackathon 'Le climat en données'"
 authors = [
     {name = "thomas.grandjean",email = "tgrandje@gmail.com"}
 ]
