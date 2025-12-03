@@ -34,7 +34,7 @@ Pour chaque site plusieurs données seront disponibles :
 
 Lien vers la cartographie produite :
 
-![./img/screenshot.png](https://datawrapper.dwcdn.net/0qH9I/29/)
+[![Copie d'écran](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/img/screenshot.png)](https://datawrapper.dwcdn.net/0qH9I/29/)
 
 ### Impact envisagé
 
