@@ -25,10 +25,16 @@ La solution permet d’évaluer l’évolution de la période de retour des év�
 L’ensemble des couples GCM/RCM issues des nouvelles données EURO-CORDEX fournissant les températures maximales journalières sont utilisés. Une approche par niveau de réchauffement (TRACC) est choisie et les périodes correspondantes sont étudiées pour en extraire les maximums annuels et les ajuster sur une loi GEV. Cela permettra d'estimer les températures maximales associées à différentes périodes de retour.
 
 Une visualisation graphique est mise en place à l’échelle nationale avec la localisation de sites SEVESO. 
+
 Pour chaque site plusieurs données seront disponibles : 
-Carte du site SEVESO sélectionné
-Lien vers la fiche géorisques du site 
-Graphique illustrant les températures max (historique, +2°C, +2,7°C et +4°C) en fonction de la période de retour
+
+* Carte du site SEVESO sélectionné
+* Lien vers la fiche géorisques du site 
+* Graphique illustrant les températures max (historique, +2°C, +2,7°C et +4°C) en fonction de la période de retour
+
+Lien vers la cartographie produite :
+
+![./img/screenshot.png](https://datawrapper.dwcdn.net/0qH9I/29/)
 
 ### Impact envisagé
 
