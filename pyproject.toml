@@ -4,7 +4,14 @@ version = "0.1.0"
 license = "GPL-3.0-or-later"
 description = "projet eight'xtrêmes du hackathon 'Le climat en données'"
 authors = [
-    {name = "thomas.grandjean",email = "tgrandje@gmail.com"}
+    {name = "Thomas Grandjean", email = "tgrandje@gmail.com"},
+    {name = "Sophie Talbot", email = "sophie.talbot@grandchambery.fr"},
+    {name = "Marion Bastien", email = "marion-bastien1@hotmail.fr"},
+    {name = "Louisa Viret"},
+    {name = "Samy Kraiem"},
+    {name = "Nathan Bengaouer"},
+    {name = "Arthur Russias"},
+    {name = "Ana Lutzky"},
 ]
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
