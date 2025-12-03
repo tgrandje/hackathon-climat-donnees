@@ -14,6 +14,7 @@ from requests_cache import CachedSession
 from tqdm import tqdm
 
 from hackathon_climat_donnees.constants import GEREP_THRESHOLDS
+from hackathon_climat_donnees import OUTPUT
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,14 @@ download_url = webservices["DOWNLOAD"]
 
 def to_disk(gdf: gpd.GeoDataFrame) -> None:
     # export multi-format
-    os.makedirs("./output", exist_ok=True)
-    gdf.to_file("./output/sample.gpkg", driver="GPKG")
-    gdf.to_file("./output/sample.shp")
+    os.makedirs(OUTPUT, exist_ok=True)
+    gdf.to_file(os.path.join(OUTPUT, "sample.gpkg"), driver="GPKG")
+    gdf.to_file(os.path.join(OUTPUT, "sample.shp"))
     gdf = gdf.copy()
-    gdf.drop("geometry", axis=1).to_csv("./output/sample.csv", sep=";")
-    gdf.to_file("./output/sample.geojson", driver="GeoJSON")
+    gdf.drop("geometry", axis=1).to_csv(
+        os.path.join(OUTPUT, "sample.csv"), sep=";"
+    )
+    gdf.to_file(os.path.join(OUTPUT, "ample.geojson"), driver="GeoJSON")
 
 
 def prepare_dataset() -> gpd.GeoDataFrame:
