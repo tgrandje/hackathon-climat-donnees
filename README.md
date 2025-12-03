@@ -92,7 +92,7 @@ print(df.head(4))
 
 ```
 
-## Retour consolidés sur les données exploitées
+## Retours consolidés sur les données exploitées
 
 Autres problèmes rencontrés : 
 
