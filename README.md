@@ -54,8 +54,8 @@ Si extension du POC aux autres jeux de données (cf. retour sur les données) : 
 
 * les données d'entrée météo doivent être placées dans le répertoire INPUT. Celles utilisées sont celles des coupes GCM/RCM issues de nouvelles données EURO-CORDEX. Durant le hackathon, ces données sont disponibles sur [ce stockage objet](https://console.object.files.data.gouv.fr/browser/meteofrance-drias/SocleM-Climat-2025%2FRCM%2FEURO-CORDEX%2FEUR-12%2F)
 * constitution d'un dataset ICPE : [prep_datasets.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prep_datasets.py). Le fichier peut être exécuté directement pour générer un dataset.
-* exploration des données météo : [prototype_exploration.ipynb](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prototype_exploration.ipynb). Ce notebook peut être utilisé pour explorer les données.
 * traitement des données météo : [netcdf_processing.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/netcdf_processing.py). Ce fichier peut être exécuté directement pour traiter les données météo.
+* exploration des données météo : [prototype_exploration.ipynb](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prototype_exploration.ipynb). Ce notebook peut être utilisé pour explorer les données et les extraire au format dataframe.
 * jointure des datasets : [join_netcdf.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/join_netcdf.py). Ce fichier peut être utilisé pour apparier des datasets.
 
 ## Retour consolidés sur les données exploitées
