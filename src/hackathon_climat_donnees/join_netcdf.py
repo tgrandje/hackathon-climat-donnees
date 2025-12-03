@@ -64,11 +64,16 @@ def join_dataset_meteo(
     gdf : gpd.GeoDataFrame
         GeoDataFrame assemblé
 
+        Le dataframe contient les colonnes du dataframe initial, augmenté des
+        données (ici température) pour le scénario donné à
+        périodes de retour 2, 5, 10, 20, 50, 100.
+
     """
 
     meteo = parse_netcdf_to_dataframe(path_netcdf)
 
     gdf = gpd.sjoin_nearest(gdf, meteo, how="left").drop("index_right", axis=1)
+    gdf = gdf.drop(["lat", "lon"], axis=1)
     return gdf
 
 
