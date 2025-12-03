@@ -32,7 +32,7 @@ download_url = webservices["DOWNLOAD"]
 
 def to_disk(gdf: gpd.GeoDataFrame) -> None:
     # export multi-format
-    os.makedirs("./output")
+    os.makedirs("./output", exist_ok=True)
     gdf.to_file("./output/sample.gpkg", driver="GPKG")
     gdf.to_file("./output/sample.shp")
     gdf = gdf.copy()
@@ -490,15 +490,14 @@ def hazards(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return data
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+def prep_dataset_icpe(save: bool = True):
     gdf = prepare_dataset()
     irep_profiles = profile_irep()
     gdf = merge_datasets(gdf, irep_profiles)
 
     # Faire le calcul des risques sur les géométries déclarées dans IREP
-    hazards = hazards(gdf)
-    gdf = gdf.merge(hazards, on="code_aiot", how="left")
+    hazards_dset = hazards(gdf)
+    gdf = gdf.merge(hazards_dset, on="code_aiot", how="left")
 
     # renommage pour éviter les troncatures SHP
     gdf = gdf.rename(
@@ -512,4 +511,11 @@ if __name__ == "__main__":
         axis=1,
     )
 
-    to_disk(gdf)
+    if save:
+        to_disk(gdf)
+    return gdf
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    prep_dataset_icpe()
