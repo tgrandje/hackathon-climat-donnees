@@ -10,7 +10,7 @@ par l'équipe Eight'xtrêmes.
 
 ### License
 
-TODO
+GPL-3.0 license
 
 ### Problématique et proposition de valeur
 
