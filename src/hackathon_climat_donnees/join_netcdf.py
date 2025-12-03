@@ -3,11 +3,10 @@
 """
 Jointure des fichiers netcdf et icpe
 """
+import os
 import geopandas as gpd
 import pandas as pd
 import xarray as xr
-
-from hackathon_climat_donnees.prep_datasets import prep_dataset_icpe
 
 
 def parse_netcdf_to_dataframe(path: str) -> gpd.GeoDataFrame:

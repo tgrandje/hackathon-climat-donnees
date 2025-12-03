@@ -58,6 +58,40 @@ Si extension du POC aux autres jeux de données (cf. retour sur les données) : 
 * exploration des données météo : [prototype_exploration.ipynb](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prototype_exploration.ipynb). Ce notebook peut être utilisé pour explorer les données.
 * jointure des datasets : [join_netcdf.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/join_netcdf.py). Ce fichier peut être utilisé pour apparier des datasets netcdf et un dataset spécifique.
 
+## Usage
+
+``` python
+
+from glob import glob
+from hackathon_climat_donnees import OUTPUT
+from hackathon_climat_donnees.prep_datasets import prep_dataset_icpe
+from hackathon_climat_donnees.netcdf_processing import process_netcdf_bunch
+from hackathon_climat_donnees.join_netcdf_to_dataframe import all_scenarii
+
+
+gdf = prep_dataset_icpe()
+process_netcdf_bunch()
+scenarii = list(glob(os.path.join(OUTPUT, "*.nc")))
+df = all_scenarii(gdf, scenarii)
+
+print(df.head(4))
+
+>>                                           2          5         10  \
+>> code_aiot  scenario                                                     
+>> 0003205293 tasmax_RP_GEV_TRACC2-7.nc  33.745651  35.813251  37.049598   
+>>            tasmax_RP_GEV_TRACC2.nc    32.628636  34.973529  36.354923   
+>> 0003300469 tasmax_RP_GEV_TRACC2-7.nc  33.745651  35.813251  37.049598   
+>>            tasmax_RP_GEV_TRACC2.nc    32.628636  34.973529  36.354923   
+>> 
+>>                                              20         50        100  
+>> code_aiot  scenario                                                    
+>> 0003205293 tasmax_RP_GEV_TRACC2-7.nc  38.145171  39.442737  40.333152  
+>>            tasmax_RP_GEV_TRACC2.nc    37.564950  38.979659  39.938044  
+>> 0003300469 tasmax_RP_GEV_TRACC2-7.nc  38.145171  39.442737  40.333152  
+>>            tasmax_RP_GEV_TRACC2.nc    37.564950  38.979659  39.938044  
+
+```
+
 ## Retour consolidés sur les données exploitées
 
 Autres problèmes rencontrés : 
