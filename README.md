@@ -16,7 +16,7 @@ GPL-3.0 license
 
 A quelles conditions météorologiques extrêmes les sites SEVESO pourraient-ils être confrontés au cours du XXIe siècle ?
 
-Calcul des températures maximales sur plusieurs périodes de retour pour les trois niveaux de réchauffement TRACC et la période historique.
+Calcul des températures maximales sur plusieurs périodes de retour pour les trois niveaux de réchauffement TRACC et la période historique. 
 
 ### Solution
 
@@ -39,8 +39,9 @@ Lien vers la cartographie produite :
 ### Impact envisagé
 
 Gestionnaires et personnel des sites SEVESO : adaptation des sites au changement climatique :
-en termes de processus industriel potentiellement impacté par la hausse des températures (seul le gestionnaire du site est à même d’évaluer cet impact)
-en termes de qualité de vie au travail pour les personnels et gestionnaires
+
+* en termes de processus industriel potentiellement impacté par la hausse des températures (seul le gestionnaire du site est à même d’évaluer cet impact)
+* en termes de qualité de vie au travail pour les personnels et gestionnaires
 
 Si extension du POC aux autres jeux de données (cf. retour sur les données) : collectivités locales, services de l’État et associations d’usagers sur l’impact en matière de santé-environnement.
 
@@ -51,8 +52,18 @@ Si extension du POC aux autres jeux de données (cf. retour sur les données) : 
 
 ## Organisation du repo
 
-* constitution d'un dataset ICPE : [prep_datasets.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prep_datasets.py)
-* exploration des données météo : [prototype_exploration.ipynb](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prototype_exploration.ipynb)
-* traitement des données météo : [netcdf_processing.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/netcdf_processing.py)
-* jointure des datasets : [join_netcdf.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/join_netcdf.py)
+* les données d'entrée météo doivent être placées dans le répertoire INPUT. Celles utilisées sont celles des coupes GCM/RCM issues de nouvelles données EURO-CORDEX. Durant le hackathon, ces données sont disponibles sur [ce stockage objet](https://console.object.files.data.gouv.fr/browser/meteofrance-drias/SocleM-Climat-2025%2FRCM%2FEURO-CORDEX%2FEUR-12%2F)
+* constitution d'un dataset ICPE : [prep_datasets.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prep_datasets.py). Le fichier peut être exécuté directement pour générer un dataset.
+* exploration des données météo : [prototype_exploration.ipynb](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/prototype_exploration.ipynb). Ce notebook peut être utilisé pour explorer les données.
+* traitement des données météo : [netcdf_processing.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/netcdf_processing.py). Ce fichier peut être exécuté directement pour traiter les données météo.
+* jointure des datasets : [join_netcdf.py](https://github.com/tgrandje/hackathon-climat-donnees/blob/main/src/hackathon_climat_donnees/join_netcdf.py). Ce fichier peut être utilisé pour apparier des datasets.
 
+## Retour consolidés sur les données exploitées
+
+Autres problèmes rencontrés : 
+
+* données “vent” : pour analyser l’impact des panaches de rejets atmosphériques des sites, la décomposition zonale et méridionale est au moins aussi intéressante que la force (impacts potentiels en terme de santé-environnement en environnement urbain). Une granularité plus fine que la moyenne journalière serait également utile.
+* pour identifier les enjeux sur les sites industriels en termes de risques naturels dans le contexte climatique, d’autres datasets mériteraient d’être traités de concert, ils ne l’ont pas été faute de temps durant le hackathon :
+    * https://sealevelrise.brgm.fr/ (risques côtiers, retrait du trait de côte)
+    * Explore 2 (effets du changement climatique sur les cours d’eau : effets sur les volumes prélevés, sur la dilution des rejets, les inondations)
+    * Simulations sur l’indicateur RGA pour le retrait gonflement des argiles par météofrance, le BRGM et la caisse centrale de réassurance
