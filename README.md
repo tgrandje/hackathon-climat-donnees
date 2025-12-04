@@ -76,19 +76,29 @@ df = all_scenarii(gdf, scenarii)
 
 print(df.head(4))
 
->>                                           2          5         10  \
+>>                                                          2          5  \
 >> code_aiot  scenario                                                     
->> 0003205293 tasmax_RP_GEV_TRACC2-7.nc  33.745651  35.813251  37.049598   
->>            tasmax_RP_GEV_TRACC2.nc    32.628636  34.973529  36.354923   
->> 0003300469 tasmax_RP_GEV_TRACC2-7.nc  33.745651  35.813251  37.049598   
->>            tasmax_RP_GEV_TRACC2.nc    32.628636  34.973529  36.354923   
+>> 0003205293 tasmaxAdjust_RP_hist_ref_median.nc    36.008649  37.912610   
+>>            tasmaxAdjust_RP_ssp3_+2.7C_median.nc  39.366658  41.113695   
+>>            tasmaxAdjust_RP_ssp3_+2C_median.nc    38.138694  39.984992   
+>>            tasmaxAdjust_RP_ssp3_+4C_median.nc    40.412740  42.235474   
+>> 0003300469 tasmaxAdjust_RP_hist_ref_median.nc    34.235854  36.320575   
 >> 
->>                                              20         50        100  
+>>                                                         10         20  \
+>> code_aiot  scenario                                                     
+>> 0003205293 tasmaxAdjust_RP_hist_ref_median.nc    38.927130  39.756595   
+>>            tasmaxAdjust_RP_ssp3_+2.7C_median.nc  42.110725  42.995803   
+>>            tasmaxAdjust_RP_ssp3_+2C_median.nc    40.802209  41.716499   
+>>            tasmaxAdjust_RP_ssp3_+4C_median.nc    43.127427  43.808692   
+>> 0003300469 tasmaxAdjust_RP_hist_ref_median.nc    37.797054  39.340793   
+>> 
+>>                                                         50        100  
 >> code_aiot  scenario                                                    
->> 0003205293 tasmax_RP_GEV_TRACC2-7.nc  38.145171  39.442737  40.333152  
->>            tasmax_RP_GEV_TRACC2.nc    37.564950  38.979659  39.938044  
->> 0003300469 tasmax_RP_GEV_TRACC2-7.nc  38.145171  39.442737  40.333152  
->>            tasmax_RP_GEV_TRACC2.nc    37.564950  38.979659  39.938044  
+>> 0003205293 tasmaxAdjust_RP_hist_ref_median.nc    40.714980  41.258031  
+>>            tasmaxAdjust_RP_ssp3_+2.7C_median.nc  44.042835  44.459542  
+>>            tasmaxAdjust_RP_ssp3_+2C_median.nc    43.334877  44.362507  
+>>            tasmaxAdjust_RP_ssp3_+4C_median.nc    44.496478  44.954355  
+>> 0003300469 tasmaxAdjust_RP_hist_ref_median.nc    41.208434  42.706186  
 
 ```
 
