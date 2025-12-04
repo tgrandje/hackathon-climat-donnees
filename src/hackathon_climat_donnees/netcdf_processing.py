@@ -4,137 +4,125 @@ Created on Wed Dec  3 11:31:14 2025
 @author: SamyKraiem
 """
 
+import logging
 import os
+import time
+import gc
+
 import xarray as xr
 import pandas as pd
 import numpy as np
 from scipy.stats import genextreme as gev
-import time
-
 
 from hackathon_climat_donnees import INPUT, OUTPUT
 
 
+logger = logging.getLogger(__name__)
+
+
+# ----------------------------
+# 1. Fonction GEV
+# ----------------------------
 def RP_calcul_vectorized(extremes, periods):
     ext = extremes[~np.isnan(extremes)]
     if ext.size < 5:
-        return (np.full(len(periods), np.nan), np.full(3, np.nan))
-
+        return np.full(len(periods), np.nan), np.full(3, np.nan)
     fit = gev.fit(ext)
-    return_values = gev.ppf(1 - 1 / periods, *fit)
-
-    return return_values, np.array(fit)
+    return gev.ppf(1 - 1 / periods, *fit), np.array(fit)
 
 
-# -----------------------------------------------
-# 0. Paramètres
-# -----------------------------------------------
+# ----------------------------
+# 2. Période
+# ----------------------------
+def get_period(is_historical, pivot):
+    if is_historical:
+        return 1985, 2014
+    return pivot - 15, pivot + 14
+
+
+# ----------------------------
+# 3. Extraction GCM / RCM
+# ----------------------------
+def extract_gcm_rcm(path):
+    parts = path.split("/")
+    gcm = parts[5]
+    rcm = parts[7]
+    return gcm, rcm
+
+
+def convert(data, var):
+    if var == "prAdjust":
+        data[var] = data[var] * 86400
+    elif var == "tasmaxAdjust":
+        data[var] = data[var] - 273.15
+    return data
 
 
 def process_netcdf_bunch():
-    periods = np.array([2, 5, 10, 20, 50, 100])
-    VAR = "tasmaxAdjust"
 
-    # -----------------------------------------------
-    # 1. Charger les listes de fichiers NetCDF
-    # -----------------------------------------------
+    VAR = "tasmaxAdjust"
+    periods = np.array([2, 5, 10, 20, 50, 100])
+    HIST_DONE = False
+
+    # ------------------------
+    # 4.3 Listes fichiers
+    # ------------------------
     with open(os.path.join(INPUT, "liste_ssp370_tasmax.txt")) as f:
         ssp_files = [l.strip() for l in f.readlines()]
-
     with open(os.path.join(INPUT, "liste_hist_tasmax.txt")) as f:
         hist_files = [l.strip() for l in f.readlines()]
 
-    def extract_gcm_rcm(path):
-        parts = path.split("/")
-        gcm = parts[5]
-        rcm = parts[7]
-        return gcm, rcm
+    hist_dict = {extract_gcm_rcm(f): f for f in hist_files}
+    ssp_dict = {extract_gcm_rcm(f): f for f in ssp_files}
 
-    hist_dict = {}
-    for f in hist_files:
-        gcm, rcm = extract_gcm_rcm(f)
-        hist_dict.setdefault((gcm, rcm), f)
-
-    ssp_dict = {}
-    for f in ssp_files:
-        gcm, rcm = extract_gcm_rcm(f)
-        ssp_dict.setdefault((gcm, rcm), f)
-
-    # -----------------------------------------------
-    # 2. Charger le tableau des modèles
-    # -----------------------------------------------
-
+    # ------------------------
+    # 4.4 Tableau des modèles
+    # ------------------------
     df = pd.read_csv(os.path.join(INPUT, "TRACC_pivot.csv"))
 
-    # -----------------------------------------------
-    # 3. Fonction pour déterminer la période
-    # -----------------------------------------------
-
-    def get_period(is_historical, pivot):
-        if is_historical:
-            return 1985, 2014
-
-        start = pivot - 15
-        end = pivot + 14
-        return start, end
-
-    # -----------------------------------------------
-    # 4. BOUCLE CENTRALE : 1 LIGNE CSV = 1 MODÈLE
-    # -----------------------------------------------
-
+    # ------------------------
+    # 4.5 Boucle RWL
+    # ------------------------
     datestart = time.time()
-
     mods = []
-    resultats = {}
-    for RWL in ["2C", "2.7C", "4C"]:
-        print("\n\n========================")
-        print(f"\n===   RWL : {RWL}   ===")
-        print("\n========================\n\n")
 
-        HIST_temp, RCP8_temp = [], []
+    for _, row in df.iterrows():
+        gcm = row["GCM"]
+        rcm = row["RCM"]
+        model_key = f"{gcm}__{rcm}"
 
-        for _, row in df.iterrows():
+        hist_path = hist_dict.get((gcm, rcm))
+        ssp_path = ssp_dict.get((gcm, rcm))
 
-            gcm = row["GCM"]
-            rcm = row["RCM"]
+        if hist_path is None or ssp_path is None:
+            logger.warning(f"Fichiers manquants pour {model_key}")
+            continue
+
+        ds_hist = xr.open_dataset(os.path.join(INPUT, hist_path))
+        ds_hist = convert(ds_hist, VAR)
+
+        ds_ssp = xr.open_dataset(os.path.join(INPUT, ssp_path))
+        ds_ssp = convert(ds_ssp, VAR)
+
+        for RWL in ["2C", "2.7C", "4C"]:
+            logger.info(f"=== RWL : {RWL} ===")
             pivot = row[RWL]
-
-            model_key = f"{gcm}__{rcm}"
-            print(f"\n=== MODÈLE : {model_key} ===")
-
             if pd.isna(pivot):
                 pivot = 2085
-                print(" - Pivot manquant → modèle ignoré ou set à 2085")
-                # continue
-
-            pivot = int(pivot)
-
-            if pivot > 2086:
-                pivot = 2085
-                print(" - Pivot 4C > 2086 → modèle ignoré ou set à 2085")
-                # continue
-
-            hist_path = hist_dict.get((gcm, rcm), None)
-            ssp_path = ssp_dict.get((gcm, rcm), None)
-
-            if hist_path is None or ssp_path is None:
-                print(f" - Fichiers manquants pour {model_key}")
-                continue
-
-            resultats[model_key] = {}
-
-            # ----------- TRAITEMENT HISTORIQUE -----------
-            print(f"  → HISTORIQUE : {hist_path}")
-
-            if any(model_key in s for s in mods):
-                print("---------{model_key} historique déjà réalisé")
             else:
-                start, end = get_period(True, pivot)
-                ds_hist = xr.open_dataset(os.path.join(INPUT, hist_path))
+                pivot = min(int(pivot), 2085)
+
+            # ------------------------
+            # Historique
+            # ------------------------
+            if model_key not in mods and not HIST_DONE:
                 ds_hist_sel = ds_hist.sel(
-                    time=slice(f"{start}-01-01", f"{end}-12-31")
+                    time=slice("1985-01-01", "2014-12-31")
                 )
-                maximums_hist = ds_hist_sel.resample(time="1Y").max()
+                maximums_hist = ds_hist_sel.resample(time="1YE").max(
+                    skipna=True
+                )
+                # maximums_hist = maximums_hist.chunk({"time": -1})
 
                 rv, params = xr.apply_ufunc(
                     RP_calcul_vectorized,
@@ -148,25 +136,33 @@ def process_netcdf_bunch():
                 )
 
                 rv = rv.assign_coords(periods=periods)
-
                 ds_RP = xr.Dataset({"return_levels": rv, "gev_params": params})
 
-                HIST_temp.append(ds_RP)
+                ds_RP.to_netcdf(
+                    os.path.join(OUTPUT, f"{VAR}_RP_hist_{model_key}.nc")
+                )
+
                 mods.append(model_key)
+                del ds_hist_sel, maximums_hist, rv, params, ds_RP
+                gc.collect()
+                logger.info(f"Historique traité pour {model_key}")
+            else:
+                logger.info(f"{model_key} historique déjà traité")
 
-            # ----------- TRAITEMENT SSP370 -----------
-            print(f"  → SSP370 : {ssp_path}")
-
+            # ------------------------
+            # SSP370
+            # ------------------------
             start, end = get_period(False, pivot)
-            ds_ssp = xr.open_dataset(os.path.join(INPUT, ssp_path))
+
             ds_ssp_sel = ds_ssp.sel(
                 time=slice(f"{start}-01-01", f"{end}-12-31")
             )
-            maximums_hist = ds_ssp_sel.resample(time="1Y").max()
+            maximums_ssp = ds_ssp_sel.resample(time="1YE").max(skipna=True)
+            # maximums_ssp = maximums_ssp.chunk({"time": -1})
 
             rv, params = xr.apply_ufunc(
                 RP_calcul_vectorized,
-                maximums_hist[VAR],
+                maximums_ssp[VAR],
                 periods,
                 input_core_dims=[["time"], ["periods"]],
                 output_core_dims=[["periods"], ["gev_params"]],
@@ -174,60 +170,83 @@ def process_netcdf_bunch():
                 dask="parallelized",
                 output_dtypes=[float, float],
             )
-
             rv = rv.assign_coords(periods=periods)
             ds_RP = xr.Dataset({"return_levels": rv, "gev_params": params})
 
-            RCP8_temp.append(ds_ssp_sel)
-            dateend = time.time()
-            print(f"1 modèle - 1 RWL : {(dateend - datestart)/60} min")
-
-        # fin boucle RWL
-        if mods and not HIST_temp:
-            file_name_hist = f"{VAR}_RP_hist_ref_median.nc"
-            HIST = xr.concat(HIST_temp, dim="modele")
-            HIST = HIST.median(dim="modele").to_netcdf(
-                os.ath.join(OUTPUT, file_name_hist)
+            ds_RP.to_netcdf(
+                os.path.join(OUTPUT, f"{VAR}_RP_ssp3_{model_key}_+{RWL}.nc")
             )
 
-            file_name_hist = f"{VAR}_RP_hist_ref_sup.nc"
-            HIST = xr.concat(HIST_temp, dim="modele")
-            HIST = HIST.quantile(0.95, dim="modele").to_netcdf(
-                os.ath.join(OUTPUT, file_name_hist)
+            del ds_ssp_sel, maximums_ssp, rv, params, ds_RP
+            gc.collect()
+
+            logger.info(
+                f"RWL {RWL} terminée ({(time.time()-datestart)/60:.2f} min)"
             )
 
-            file_name_hist = f"{VAR}_RP_hist_ref_inf.nc"
-            HIST = xr.concat(HIST_temp, dim="modele")
-            HIST = HIST.quantile(0.05, dim="modele").to_netcdf(
-                os.ath.join(OUTPUT, file_name_hist)
+    logger.info(f"Temps total : {(time.time()-datestart)/60:.2f} min")
+
+    # ------------------------
+    # 4.6 Reconstruction médianes / quantiles finales
+    # ------------------------
+
+    def compute_final_statistics(
+        output_dir, input_path, var, RWL_list=["2C", "2.7C", "4C"]
+    ):
+
+        def load_concat_reduce(files, out_prefix):
+            """Charge chaque fichier avec open_dataset puis concatène."""
+            if not files:
+                return
+
+            logger.info(f"  - {len(files)} fichiers trouvés")
+
+            datasets = []
+            for f in files:
+                ds = xr.open_dataset(f)
+                if "gev_params" in ds:
+                    ds = ds.drop_vars("gev_params")
+
+                datasets.append(ds)
+
+            ds_all = xr.concat(
+                datasets, dim="modele", compat="override", coords="minimal"
             )
 
-        file_name_rcp8 = f"{VAR}_RP_ssp3_+{RWL}_median.nc"
-        RCP8 = xr.concat(RCP8_temp, dim="modele")
-        RCP8 = RCP8.median(dim="modele").to_netcdf(
-            os.ath.join(OUTPUT, file_name_rcp8)
-        )
+            ds_all.median(dim="modele").to_netcdf(
+                os.path.join(input_path, f"{out_prefix}_median.nc")
+            )
+            ds_all.quantile(0.95, dim="modele").to_netcdf(
+                os.path.join(input_path, f"{out_prefix}_sup.nc")
+            )
+            ds_all.quantile(0.05, dim="modele").to_netcdf(
+                os.path.join(input_path, f"{out_prefix}_inf.nc")
+            )
 
-        file_name_rcp8 = f"{VAR}_RP_ssp3_+{RWL}_sup.nc"
-        RCP8 = xr.concat(RCP8_temp, dim="modele")
-        RCP8 = RCP8.quantile(0.95, dim="modele").to_netcdf(
-            os.ath.join(OUTPUT, file_name_rcp8)
-        )
+        for RWL in RWL_list:
+            logger.info(
+                f"\nReconstruction médianes / quantiles pour RWL {RWL}"
+            )
 
-        file_name_rcp8 = f"{VAR}_RP_ssp3_+{RWL}_inf.nc"
-        RCP8 = xr.concat(RCP8_temp, dim="modele")
-        RCP8 = RCP8.quantile(0.05, dim="modele").to_netcdf(
-            os.ath.join(OUTPUT, file_name_rcp8)
-        )
+            # # --- Historique ---
+            hist_files = [
+                os.path.join(output_dir, f)
+                for f in os.listdir(output_dir)
+                if f.startswith(f"{var}_RP_hist_") and f.endswith(".nc")
+            ]
+            load_concat_reduce(hist_files, f"{var}_RP_hist_ref")
 
-        dateend = time.time()
-        print(f"ALL modèles - 1 RWL : {(dateend - datestart)/60} min")
+            # --- SSP370 ---
+            ssp_files = [
+                os.path.join(output_dir, f)
+                for f in os.listdir(output_dir)
+                if f.startswith(f"{var}_RP_ssp3_") and f.endswith(f"+{RWL}.nc")
+            ]
+            load_concat_reduce(ssp_files, f"{var}_RP_ssp3_+{RWL}")
 
-    print("==" * 30)
-    print("        DONE       ")
-    dateend = time.time()
-    print(f"ALL modèles - ALL RWL : {(dateend - datestart)/60} min")
-    print("==" * 30)
+        logger.info("\nReconstruction terminée.")
+
+    compute_final_statistics("out", OUTPUT, VAR, RWL_list=["2C", "2.7C", "4C"])
 
 
 if __name__ == "__main__":

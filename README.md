@@ -71,7 +71,8 @@ from hackathon_climat_donnees.join_netcdf_to_dataframe import all_scenarii
 
 gdf = prep_dataset_icpe()
 process_netcdf_bunch()
-scenarii = list(glob(os.path.join(OUTPUT, "*.nc")))
+# Sélection (par exemple) des fichiers générés sur la température médiane (multi-modèles)
+scenarii = list(glob(os.path.join(OUTPUT, "*_median.nc")))
 df = all_scenarii(gdf, scenarii)
 
 print(df.head())
