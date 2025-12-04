@@ -6,7 +6,7 @@
 ### Contexte
 
 Ce projet est réalisé dans le cadre du hackathon [Le climat en données](https://guides.data.gouv.fr/guide-du-participant-au-hackathon-le-climat-en-donnees),
-par l'équipe Eight'xtrêmes.
+par l'équipe Eight'xtrêmes : Marion BASTIEN, Nathan BENGAOUER, Thomas GRANDJEAN, Samy KRAIEM, Ana LUTZKY, Arthur RUSSIAS, Sophie TALBOT, Louisa VIRET.
 
 ### License
 
