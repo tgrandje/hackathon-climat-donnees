@@ -74,7 +74,7 @@ process_netcdf_bunch()
 scenarii = list(glob(os.path.join(OUTPUT, "*.nc")))
 df = all_scenarii(gdf, scenarii)
 
-print(df.head(4))
+print(df.head())
 
 >>                                                          2          5  \
 >> code_aiot  scenario                                                     
