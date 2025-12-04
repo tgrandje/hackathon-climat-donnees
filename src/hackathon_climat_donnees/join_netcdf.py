@@ -24,10 +24,13 @@ def parse_netcdf_to_dataframe(path: str) -> gpd.GeoDataFrame:
         GeoDataFrame des données netcdf.
 
     """
+    df = xr.open_dataset(path)
+    try:
+        df.drop_dims("gev_params")
+    except ValueError:
+        pass
     df = (
-        xr.open_dataset(path)
-        .drop_dims("gev_params")
-        .stack(points=("y", "x", "periods"))
+        df.stack(points=("y", "x", "periods"))
         .to_dataframe()
         .reset_index()
         .dropna()
@@ -39,8 +42,8 @@ def parse_netcdf_to_dataframe(path: str) -> gpd.GeoDataFrame:
         .reset_index()
     )
     geoms = gpd.GeoSeries(
-        gpd.points_from_xy(df["x"], df["y"]), name="geometry", crs=2154
-    )
+        gpd.points_from_xy(df["x"], df["y"]), name="geometry", crs=27572
+    ).to_crs(2154)
     df = df.join(geoms).drop(["x", "y"], axis=1)
     df = gpd.GeoDataFrame(df, crs=2154)
     return df
@@ -136,14 +139,17 @@ def all_scenarii(
 
 # if __name__ == "__main__":
 #     from hackathon_climat_donnees import INPUT
+#     from hackathon_climat_donnees.prep_datasets import prep_dataset_icpe
 #     import os
 
-#     gdf = prep_dataset_icpe()
+#     gdf = prep_dataset_icpe(False)
 
 #     test = all_scenarii(
 #         gdf,
 #         [
-#             os.path.join(INPUT, "tasmax_RP_GEV_TRACC2.nc"),
-#             os.path.join(INPUT, "tasmax_RP_GEV_TRACC2-7.nc"),
+#             os.path.join(INPUT, "tasmaxAdjust_RP_hist_ref_median.nc"),
+#             os.path.join(INPUT, "tasmaxAdjust_RP_ssp3_+4C_median.nc"),
+#             os.path.join(INPUT, "tasmaxAdjust_RP_ssp3_+2.7C_median.nc"),
+#             os.path.join(INPUT, "tasmaxAdjust_RP_ssp3_+2C_median.nc"),
 #         ],
 #     )
